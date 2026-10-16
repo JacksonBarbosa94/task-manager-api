@@ -1,0 +1,52 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.3.5'
+    id 'io.spring.dependency-management' version '1.1.6'
+    id 'io.freefair.lombok' version '8.10.2'
+    id 'org.asciidoctor.jvm.convert' version '4.0.2' // Atualizado para a versão 4.x (compatível com Gradle moderno)
+}
+
+group = 'dio'
+version = '0.0.1-SNAPSHOT'
+description = 'taskmanager'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17) // Podes usar 17 ou 21
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    set('snippetsDir', file('build/generated-snippets'))
+}
+
+configurations {
+    asciidoctorExtensions
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    asciidoctorExtensions 'org.springframework.restdocs:spring-restdocs-asciidoctor'
+    testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+    outputs.dir(snippetsDir)
+}
+
+tasks.named('asciidoctor') {
+    inputs.dir(snippetsDir)
+    configurations 'asciidoctorExtensions'
+    dependsOn test
+}
